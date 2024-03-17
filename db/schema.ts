@@ -55,10 +55,10 @@ export const verificationTokens = sqliteTable(
 );
 
 export const posts = sqliteTable("posts", {
-  id: integer("id").primaryKey(),
+  id: text("id").primaryKey(),
   title: text("title").notNull(),
   content: text("content").notNull(),
-  userId: integer("user_id")
+  userId: text("userId")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   createdAt: text("created_at")
