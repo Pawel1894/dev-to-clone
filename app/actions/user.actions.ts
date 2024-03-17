@@ -1,7 +1,7 @@
 "use server";
 
-import { db } from "../../drizzle";
-import { InsertUser, users } from "../../schema";
+import { db } from "../../db/drizzle";
+import { InsertUser, users } from "../../db/schema";
 
 export const insertUser = async (user: InsertUser) => {
   try {
