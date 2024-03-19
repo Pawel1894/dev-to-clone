@@ -9,11 +9,20 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 const CreatePostSchema = z.object({
-  title: z.string(),
-  content: z.string(),
+  title: z.string().min(1, "Title must be at least 1 character long"),
+  content: z.string().min(1, "Content must be at least 1 character long"),
 });
 
-export const createPost = async (formData: FormData) => {
+export type PostFormState = {
+  errors?: {
+    title?: string[];
+    content?: string[];
+  };
+  message?: string | null;
+  status: "success" | "error" | "idle";
+};
+
+export async function createPost(prevState: PostFormState, formData: FormData): Promise<PostFormState> {
   const session = await getSession();
   const userId = session?.user?.id;
 
@@ -24,20 +33,33 @@ export const createPost = async (formData: FormData) => {
     content: formData.get("content"),
   });
 
-  if (!parsedData.success) throw new Error("Invalid form data");
+  if (!parsedData.success) {
+    return {
+      errors: parsedData.error.flatten().fieldErrors,
+      message: "Missing Fields. Failed to Create Post.",
+      status: "error",
+    };
+  }
 
-  await db
-    .insert(posts)
-    .values({
-      ...parsedData.data,
-      userId,
-      id: crypto.randomUUID(),
-    })
-    .run();
+  try {
+    await db
+      .insert(posts)
+      .values({
+        ...parsedData.data,
+        userId,
+        id: crypto.randomUUID(),
+      })
+      .run();
 
-  revalidatePath("/");
-  redirect("/");
-};
+    revalidatePath("/");
+    redirect("/");
+  } catch (error) {
+    return {
+      message: "Database Error: Failed to Create Post.",
+      status: "error",
+    };
+  }
+}
 
 export const getPosts = async () => {
   return db.select().from(posts).all();
