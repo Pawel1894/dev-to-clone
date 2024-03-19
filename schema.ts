@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { integer, sqliteTable, text, primaryKey } from "drizzle-orm/sqlite-core";
 import type { AdapterAccount } from "@auth/core/adapters";
 
@@ -9,6 +9,12 @@ export const users = sqliteTable("user", {
   emailVerified: integer("emailVerified", { mode: "timestamp_ms" }),
   image: text("image"),
 });
+
+export const usersRelations = relations(users, ({ many }) => ({
+  posts: many(posts, {
+    relationName: "author",
+  }),
+}));
 
 export const accounts = sqliteTable(
   "account",
@@ -58,13 +64,17 @@ export const posts = sqliteTable("posts", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
   content: text("content").notNull(),
-  userId: text("userId")
+  author: text("author_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   createdAt: text("created_at")
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
 });
+
+export const postsRelations = relations(posts, ({ one }) => ({
+  author: one(users, { fields: [posts.author], references: [users.id] }),
+}));
 
 export type InsertUser = typeof users.$inferInsert;
 export type SelectUser = typeof users.$inferSelect;

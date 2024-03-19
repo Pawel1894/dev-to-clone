@@ -16,9 +16,9 @@ export const PostsList = async () => {
     <div>
       <ul>
         {posts.map((post) => (
-          <Link href={`/post/${post.id}`} key={post.id}>
-            {post.title}
-          </Link>
+          <li key={post.id}>
+            <Link href={`/post/${post.id}`}>{post.title}</Link>
+          </li>
         ))}
       </ul>
     </div>
