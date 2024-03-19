@@ -9,11 +9,11 @@ const PostCreate = async () => {
       <form action={createPost}>
         <div className="field-row-stacked">
           <label>Title</label>
-          <input type="text" />
+          <input name="title" type="text" />
         </div>
         <div className="field-row-stacked">
           <label>Content</label>
-          <textarea></textarea>
+          <textarea name="content"></textarea>
         </div>
         <button type="submit">Create</button>
       </form>
