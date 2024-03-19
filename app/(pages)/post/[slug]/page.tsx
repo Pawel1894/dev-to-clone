@@ -16,9 +16,10 @@ export default async function PostPage({ params }: PostPage) {
 
   return (
     <div>
-      <h3>{post.title}</h3>
-      <p>{post.content}</p>
-      <p>{post.author.name}</p>
+      <h3>title: {post.title}</h3>
+      <p>content: {post.content}</p>
+      <p>author: {post.author.name}</p>
+      <p>created at: {post.createdAt}</p>
     </div>
   );
 }
