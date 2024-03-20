@@ -10,6 +10,7 @@ export default async function Home() {
   return (
     <main>
       <span>Logged in: {session?.user?.name}</span>
+      <Link href="/post/my-posts">My posts</Link>
       <br />
       <Auth />
       <br />

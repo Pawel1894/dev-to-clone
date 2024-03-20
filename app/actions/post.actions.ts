@@ -86,3 +86,22 @@ export const getPost = async (id: string) => {
     },
   });
 };
+
+export const getMyPosts = async () => {
+  const session = await getSession();
+  const userId = session?.user?.id;
+
+  if (!userId) {
+    return [];
+  }
+
+  return db.query.posts.findMany({
+    where: eq(posts.author, userId),
+  });
+};
+
+export const deletePost = async (id: string) => {
+  await db.delete(posts).where(eq(posts.id, id)).run();
+
+  revalidatePath("/post/my-posts");
+};
