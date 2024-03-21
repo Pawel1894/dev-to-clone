@@ -9,7 +9,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 
-const CreatePostSchema = z.object({
+const PostSchema = z.object({
   title: z.string().min(1, "Title must be at least 1 character long"),
   content: z.string().min(1, "Content must be at least 1 character long"),
 });
@@ -29,7 +29,7 @@ export async function createPost(prevState: PostFormState, formData: FormData): 
 
   if (!userId) throw new Error("User not found");
 
-  const parsedData = CreatePostSchema.safeParse({
+  const parsedData = PostSchema.safeParse({
     title: formData.get("title"),
     content: formData.get("content"),
   });
@@ -105,3 +105,45 @@ export const deletePost = async (id: string) => {
 
   revalidatePath("/post/my-posts");
 };
+
+export async function updatePost(
+  postId: string,
+  prevState: PostFormState,
+  formData: FormData
+): Promise<PostFormState> {
+  const session = await getSession();
+  const userId = session?.user?.id;
+
+  if (!userId) throw new Error("User not found");
+
+  const parsedData = PostSchema.safeParse({
+    title: formData.get("title"),
+    content: formData.get("content"),
+  });
+
+  if (!parsedData.success) {
+    return {
+      errors: parsedData.error.flatten().fieldErrors,
+      message: "Missing Fields. Failed to Update Post.",
+      status: "error",
+    };
+  }
+
+  try {
+    await db
+      .update(posts)
+      .set({
+        ...parsedData.data,
+      })
+      .where(eq(posts.id, postId))
+      .run();
+  } catch (error) {
+    return {
+      message: "Database Error: Failed to Update Post.",
+      status: "error",
+    };
+  }
+
+  revalidatePath("/post/my-posts");
+  redirect("/post/my-posts");
+}

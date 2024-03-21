@@ -1,5 +1,5 @@
 import { deletePost, getMyPosts } from "@/app/actions/post.actions";
-
+import Link from "next/link";
 
 export default async function MyPostsPage() {
   const posts = await getMyPosts();
@@ -14,14 +14,16 @@ export default async function MyPostsPage() {
       <ul>
         {posts.map((post) => (
           <li key={post.id}>
-            <a href={`/post/${post.id}`}>{post.title}</a>
+            <Link href={`/post/${post.id}`}>{post.title}</Link>
             &nbsp;&nbsp;
-            <button>Edit</button>
+            <Link href={`/post/${post.id}/edit`}>
+              <button>Edit</button>
+            </Link>
             &nbsp;
             <form
               style={{ display: "inline" }}
               action={async () => {
-                'use server'
+                "use server";
                 await deletePost(post.id);
               }}
             >
